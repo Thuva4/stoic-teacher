@@ -1,0 +1,40 @@
+name: Build and Deploy
+on:
+  push:
+  schedule:
+    - cron:  '45 */1 * * *'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Cache  💾
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}
+      - name: Deploy 🚀
+        run: |
+          git fetch origin
+          git checkout gh-pages
+          git reset --hard origin/main
+          npm install
+          npm run build
+          touch build/.nojekyll
+          mv .git ../
+          find * -maxdepth 0 -name 'build' -prune -o -exec rm -rf '{}' ';'
+          mv ../.git .git
+          mv ./build/* .
+          git rm -rf --cache .
+          git config user.name 'stoicteacher'
+          git config user.email 'stoicteacher@bots.github.com'
+          git add .
+          git commit -m 'Deploying to gh-pages 🚀'
+          if [ $? -ne 0 ]; then
+            echo "nothing to commit"
+            exit 0
+          fi
+          git push https://thuva4:${{secrets.GITHUB_TOKEN}}@github.com/thuva4/stoic-teacher.git --force

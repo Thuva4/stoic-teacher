@@ -1,0 +1,29 @@
+name: Update Stats
+
+on:
+  schedule:
+    - cron:  '15 * * * *'
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '16.x'
+    - name: Generate Readme 
+      run: node scripts/dist/index.js
+    - name: Commit Stats updates
+      run: |
+        if [[ -z $(git status -s) ]]
+        then
+          echo "No changes in Stats files"
+        else
+          git pull
+          git config --global user.name 'stoicteacher'
+          git config --global user.email 'stoicteacher@users.noreply.github.com'
+          git commit -am "Automated report"
+          git push
+        fi
