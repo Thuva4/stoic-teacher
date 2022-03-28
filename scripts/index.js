@@ -149,8 +149,18 @@ const dailyInsights = async () => {
       path.resolve(__dirname + "../../../src/data/past_insights.json")
     )
   );
-  var today = new Date().getTime();
+  const today = new Date().getTime();
   pastInsights[today] = newInsights;
+
+  let processPastInsight = {};
+  if (Object.keys(pastInsights).length > 720 ) {
+    const keys = Object.keys(pastInsights).sort((a, b) => b - a);
+    for (let i = 720; i >= 0; i -= 1) {
+      processPastInsight[keys[i]] = pastInsights[keys[i]]
+    }
+  } else {
+    processPastInsight = pastInsights;
+  }
 
   fs.writeFileSync(
     path.resolve(__dirname + "../../../src/data/compare_insights.json"),
@@ -158,7 +168,7 @@ const dailyInsights = async () => {
   );
   fs.writeFileSync(
     path.resolve(__dirname + "../../../src/data/past_insights.json"),
-    JSON.stringify(pastInsights, null, 2)
+    JSON.stringify(processPastInsight, null, 2)
   );
   fs.writeFileSync(
     path.resolve(__dirname + "../../../src/data/current_insights.json"),
