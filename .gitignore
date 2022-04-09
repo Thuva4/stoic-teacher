@@ -25,3 +25,4 @@ yarn-error.log*
 commit.sh
 
 /scripts/node_modules
+scripts/build/index.js

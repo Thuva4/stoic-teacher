@@ -13,8 +13,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '16.x'
-    - name: Generate Readme 
-      run: node scripts/dist/index.js
+    - name: Generate Readme
+      run: cd scripts
+      run: npm i
+      run: npx tsc --build
+      run: node build/index.js
     - name: Commit Stats updates
       run: |
         if [[ -z $(git status -s) ]]

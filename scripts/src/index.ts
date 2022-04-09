@@ -1,8 +1,8 @@
-const axios = require("axios").default;
-const cheerio = require("cheerio");
-const _ = require("lodash");
-const fs = require("fs");
-const FormData = require("form-data");
+import axios from "axios";
+import cheerio from "cheerio";
+import _  from "lodash";
+import fs from "fs";
+import FormData from "form-data";
 
 const FACEBOOK_BUSINESS_ID = "113633627183646";
 const INSTAGRAM_SCREEN_NAME = "_stoicteacher";
@@ -18,7 +18,42 @@ const CONFIG = {
   },
 };
 
-const instagram = async () => {
+interface IFollowersCount {
+  count: number;
+}
+
+interface ISocialInsight {
+  twitter: number,
+  facebook: number,
+  instagram: number,
+  reddit: number,
+  medium: number,
+  youtube: number,
+}
+
+interface IPastInsight {
+  [key: string]: ISocialInsight
+}
+
+interface CurrentInsight {
+  followers: ISocialInsight,
+  timeStamp: number,
+}
+
+interface ITwitterResponse {
+  following: boolean,
+  id: string,
+  screen_name: string,
+  name: string,
+  protected: boolean,
+  followers_count: number,
+  formatted_followers_count: string,
+  age_gated: boolean
+}
+
+
+
+const instagram = async () : Promise<IFollowersCount | undefined>  => {
   const form = new FormData();
   form.append("username", INSTAGRAM_SCREEN_NAME);
   try {
@@ -42,41 +77,43 @@ const instagram = async () => {
       response.data,
       "following"
     )
-    return {
-      followersCount: followers > following ? followers : following,
-    };
+    const followersCount : IFollowersCount = {
+      count: followers > following ? followers : following,
+    }
+    return followersCount;
   } catch (e) {
     console.log(e);
   }
 };
 
-const facebookPage = async () => {
+const facebookPage = async () : Promise<IFollowersCount | undefined> => {
   try {
     const url = `https://web.facebook.com/plugins/fan.php?connections=100&id=${FACEBOOK_BUSINESS_ID}&_rdc=1&_rdr`;
     const response = await axios.get(url, CONFIG);
     const body = response.data;
     const $ = cheerio.load(body);
     let followersCount = $("div[class=_1drq]").text().split("followers")[0];
-    followersCount = +followersCount.replace(/\./g, "").replace(",", "");
-    return { followersCount };
+    followersCount = followersCount.replace(/\./g, "").replace(",", "");
+    return  { count: +followersCount };
   } catch (e) {
     console.log(e);
   }
 };
 
-const twitter = async () => {
+const twitter = async () : Promise<IFollowersCount | undefined> => {
   try {
-    const statusRes = await axios.get(
+    const response = await axios.get(
       `https://cdn.syndication.twimg.com/widgets/followbutton/info.json?screen_names=${TWITTER_SCREEN_NAME}`,
       CONFIG
     );
-    return { followersCount: statusRes.data[0].followers_count };
+    const data = response?.data[0] as ITwitterResponse; 
+    return { count: data.followers_count };
   } catch (e) {
     console.log(e);
   }
 };
 
-const reddit = async () => {
+const reddit = async () : Promise<IFollowersCount | undefined>=> {
   try {
     const statusRes = await axios.get(
       `https://www.reddit.com/r/${REDDIT_NAME}/about.json`,
@@ -85,13 +122,13 @@ const reddit = async () => {
     const {
       data: { subscribers },
     } = statusRes.data;
-    return { followersCount: subscribers };
+    return { count: subscribers };
   } catch (e) {
     console.log(e);
   }
 };
 
-const medium = async () => {
+const medium = async () : Promise<IFollowersCount | undefined> => {
   const res = await axios.get(
     `https://medium.com/${MEDIUM_NAME}?format=json`,
     CONFIG
@@ -99,7 +136,7 @@ const medium = async () => {
   const data = JSON.parse(res.data.replace("])}while(1);</x>", ""));
   const userId = _.get(data, "payload.user.userId");
   return {
-    followersCount: _.get(
+    count: _.get(
       data,
       `payload.references.SocialStats.${userId}.usersFollowedByCount`,
       null
@@ -107,13 +144,13 @@ const medium = async () => {
   };
 };
 
-const youtube = async () => {
+const youtube = async () : Promise<IFollowersCount | undefined> => {
   try {
     const url = `https://www.youtube.com/subscribe_embed?channelid=${YOUTUBE_CHANNEL_ID}`;
     const response = await axios.get(url, CONFIG);
     const $ = cheerio.load(response.data);
     let followersCount = +$("span[role=button]").text();
-    return { followersCount };
+    return { count: followersCount };
   } catch (e) {
     console.log(e);
   }
@@ -122,10 +159,10 @@ const youtube = async () => {
 const path = require("path");
 
 const dailyInsights = async () => {
-  const {followers: currentInsights} = JSON.parse(
+  const currentInsights: CurrentInsight = JSON.parse(
     fs.readFileSync(
       path.resolve(__dirname + "../../../src/data/current_insights.json")
-    )
+    ).toString()
   );
 
   const twitterInsight = await twitter();
@@ -135,31 +172,31 @@ const dailyInsights = async () => {
   const mediumInsight = await medium();
   const youtubeInsight = await youtube();
 
-  const newInsights = {
-    twitter: twitterInsight?.followersCount || currentInsights.twitter,
-    facebook: facebookInsight?.followersCount || currentInsights.facebook,
-    instagram: instagramInsight?.followersCount || currentInsights.instagram,
-    reddit: redditInsight?.followersCount || currentInsights.reddit,
-    medium: mediumInsight?.followersCount || currentInsights.medium,
-    youtube: youtubeInsight?.followersCount || currentInsights.youtube,
+  const newInsights : ISocialInsight = {
+    twitter: twitterInsight?.count || currentInsights.followers.twitter,
+    facebook: facebookInsight?.count || currentInsights.followers.facebook,
+    instagram: instagramInsight?.count || currentInsights.followers.instagram,
+    reddit: redditInsight?.count || currentInsights.followers.reddit,
+    medium: mediumInsight?.count || currentInsights.followers.medium,
+    youtube: youtubeInsight?.count || currentInsights.followers.youtube,
   };
-  const compareInsights = compare(currentInsights, newInsights);
-  const pastInsights = JSON.parse(
+  const compareInsights = compare(currentInsights.followers, newInsights);
+  const pastInsights : IPastInsight = JSON.parse(
     fs.readFileSync(
       path.resolve(__dirname + "../../../src/data/past_insights.json")
-    )
+    ).toString()
   );
   const today = new Date().getTime();
   pastInsights[today] = newInsights;
 
-  let processPastInsight = {};
+  let processedPastInsight : IPastInsight = {};
   if (Object.keys(pastInsights).length > 720 ) {
-    const keys = Object.keys(pastInsights).sort((a, b) => b - a);
+    const keys = Object.keys(pastInsights).sort((a : string, b: string) => +b - +a);
     for (let i = 720; i >= 0; i -= 1) {
-      processPastInsight[keys[i]] = pastInsights[keys[i]]
+      processedPastInsight[keys[i]] = pastInsights[keys[i]]
     }
   } else {
-    processPastInsight = pastInsights;
+    processedPastInsight = pastInsights;
   }
 
   fs.writeFileSync(
@@ -168,22 +205,24 @@ const dailyInsights = async () => {
   );
   fs.writeFileSync(
     path.resolve(__dirname + "../../../src/data/past_insights.json"),
-    JSON.stringify(processPastInsight, null, 2)
+    JSON.stringify(processedPastInsight, null, 2)
   );
   fs.writeFileSync(
     path.resolve(__dirname + "../../../src/data/current_insights.json"),
-    JSON.stringify({followers: newInsights, timeStamp: today}, null, 2)
+    JSON.stringify({
+      followers: newInsights,
+      timeStamp: today,
+    }, null, 2)
   );
 };
 
-const compare = (old, current) => {
-  const result = {};
-  for (const key in old) {
-    if (old[key] instanceof Object) {
-      result[key] = compare(old[key], current[key]);
-    } else {
-      result[key] = (current[key] || 0) - (old[key] || 0);
-    }
+
+const compare = (old: ISocialInsight, current: ISocialInsight) => {
+  const result: ISocialInsight = { ...old };
+  type ObjectKey = keyof typeof old;
+  const keys : ObjectKey[] = Object.keys(old) as ObjectKey[];
+  for (const key of keys) {
+    result[key] = (current[key] || 0) - (old[key] || 0);
   }
   return result;
 };
