@@ -14,10 +14,7 @@ jobs:
       with:
         node-version: '16.x'
     - name: Generate Readme
-      run: cd scripts
-      run: npm i
-      run: npx tsc --build
-      run: node build/index.js
+      run: cd scripts && npm i && npx tsc --build && node build/index.js
     - name: Commit Stats updates
       run: |
         if [[ -z $(git status -s) ]]
