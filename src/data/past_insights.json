@@ -1,12 +1,4 @@
 {
-  "1654425168770": {
-    "twitter": 42550,
-    "facebook": 12788,
-    "instagram": 8886,
-    "reddit": 2180,
-    "medium": 867,
-    "youtube": 176
-  },
   "1654428462530": {
     "twitter": 42553,
     "facebook": 12804,
@@ -5764,6 +5756,14 @@
     "facebook": 14771,
     "instagram": 9153,
     "reddit": 2329,
+    "medium": 1024,
+    "youtube": 182
+  },
+  "1657288090988": {
+    "twitter": 42610,
+    "facebook": 14769,
+    "instagram": 9153,
+    "reddit": 2330,
     "medium": 1024,
     "youtube": 182
   }
