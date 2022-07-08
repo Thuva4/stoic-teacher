@@ -1,12 +1,4 @@
 {
-  "1654403942641": {
-    "twitter": 42543,
-    "facebook": 12758,
-    "instagram": 8886,
-    "reddit": 2181,
-    "medium": 866,
-    "youtube": 176
-  },
   "1654406982129": {
     "twitter": 42543,
     "facebook": 12758,
@@ -5764,6 +5756,14 @@
     "facebook": 14764,
     "instagram": 9153,
     "reddit": 2328,
+    "medium": 1024,
+    "youtube": 182
+  },
+  "1657265400159": {
+    "twitter": 42612,
+    "facebook": 14764,
+    "instagram": 9153,
+    "reddit": 2329,
     "medium": 1024,
     "youtube": 182
   }
