@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/stoic-teacher/static/css/main.21d3f8e1.chunk.css",
+    "main.js": "/stoic-teacher/static/js/main.42a74091.chunk.js",
+    "main.js.map": "/stoic-teacher/static/js/main.42a74091.chunk.js.map",
+    "runtime-main.js": "/stoic-teacher/static/js/runtime-main.22206915.js",
+    "runtime-main.js.map": "/stoic-teacher/static/js/runtime-main.22206915.js.map",
+    "static/css/2.2db8ea15.chunk.css": "/stoic-teacher/static/css/2.2db8ea15.chunk.css",
+    "static/js/2.d711e013.chunk.js": "/stoic-teacher/static/js/2.d711e013.chunk.js",
+    "static/js/2.d711e013.chunk.js.map": "/stoic-teacher/static/js/2.d711e013.chunk.js.map",
+    "index.html": "/stoic-teacher/index.html",
+    "static/css/2.2db8ea15.chunk.css.map": "/stoic-teacher/static/css/2.2db8ea15.chunk.css.map",
+    "static/css/main.21d3f8e1.chunk.css.map": "/stoic-teacher/static/css/main.21d3f8e1.chunk.css.map",
+    "static/js/2.d711e013.chunk.js.LICENSE.txt": "/stoic-teacher/static/js/2.d711e013.chunk.js.LICENSE.txt",
+    "static/media/all.min.css": "/stoic-teacher/static/media/fa-solid-900.efbd5d20.eot"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.22206915.js",
+    "static/css/2.2db8ea15.chunk.css",
+    "static/js/2.d711e013.chunk.js",
+    "static/css/main.21d3f8e1.chunk.css",
+    "static/js/main.42a74091.chunk.js"
+  ]
+}
